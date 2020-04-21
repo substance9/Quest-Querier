@@ -66,7 +66,12 @@ public class DbQuerier {
                 }
             }
             else if (queryType == 2){
-
+                //User Trace query only returns encid
+                while (rs.next()) {
+                    EncWifiData retEncData = new EncWifiData();
+                    retEncData.encId = rs.getString(1);
+                    resultEncWifiDataSet.add(retEncData);
+                }
             }
             else if (queryType == 3){
                 

@@ -22,16 +22,18 @@ public class Querier {
 
         Epoch epoch = new Epoch(Integer.parseInt(prop.getProperty("epoch")));
 
-        QueryGenerator queryGenerator = new QueryGenerator(epoch, 
-                                                            prop.getProperty("enc_key"),
-                                                            prop.getProperty("secret"),
-                                                            prop.getProperty("result.enc_table_name"));
-
         DbQuerier dbQuerier = new DbQuerier(Integer.valueOf(prop.getProperty("db_port")),
                                                             prop.getProperty("result.enc_table_name"));
 
         EncDataAnalyzer encDataAnalyzer = new EncDataAnalyzer(prop.getProperty("enc_key"),
                                                                 prop.getProperty("secret"));
+
+        QueryGenerator queryGenerator = new QueryGenerator(epoch, 
+                                                            prop.getProperty("enc_key"),
+                                                            prop.getProperty("secret"),
+                                                            prop.getProperty("result.enc_table_name"),
+                                                            dbQuerier,
+                                                            encDataAnalyzer);
 
         // Start executing query......
 
@@ -39,9 +41,7 @@ public class Querier {
                                                         prop.getProperty("query_start_time"), 
                                                         prop.getProperty("query_end_time"), 
                                                         prop.getProperty("query_device"));
-
-        //debug info
-        System.out.println("Encrypted SQL Query: " + encSqlStr);
+        
 
         ArrayList<EncWifiData> encResults = dbQuerier.execQuery(Integer.valueOf(prop.getProperty("query_type")),
                                                                 encSqlStr);
@@ -106,7 +106,7 @@ public class Querier {
             System.out.println("--enc_key:\t\t\t"+prop.getProperty("enc_key"));
             System.out.println("--secret:\t"+prop.getProperty("secret"));
             System.out.println("--db_port:\t\t\t"+prop.getProperty("db_port"));
-            System.out.println("--query_type:\t\t"+prop.getProperty("db_pquery_typeort"));
+            System.out.println("--query_type:\t\t"+prop.getProperty("query_type"));
             System.out.println("--query_start_time:\t"+prop.getProperty("query_start_time"));
             System.out.println("--query_end_time:\t"+prop.getProperty("query_end_time"));
             System.out.println("--query_device:\t"+prop.getProperty("query_device"));

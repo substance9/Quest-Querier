@@ -57,7 +57,7 @@ exp_id = "test"
 enc_t_name = "quest_15_1000000"
 
 # Query parameters
-query_type = 1  # 1 for Location Trace, 2 for User Trace, 3 for Social Distance, 4 for Crowd Flow
+query_type = 2  # 1 for Location Trace, 2 for User Trace, 3 for Social Distance, 4 for Crowd Flow
 query_start_time = "2018-10-04 13:01:00.000000"  # Please use the exact format
 query_end_time = "2018-10-04 13:25:00.000000"
 query_device = "63efb80af376b19ae55cbb45a3051267959aba1c"

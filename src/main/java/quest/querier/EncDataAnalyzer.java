@@ -22,7 +22,8 @@ public class EncDataAnalyzer {
             return;
         }
         else if (queryType == 2){
-
+            processUserTraceResults(encResults);
+            return;
         }
         else if (queryType == 3){
             
@@ -33,7 +34,18 @@ public class EncDataAnalyzer {
     }
 
     public void processLocTraceResults(ArrayList<EncWifiData> encResults){
+        String[] locArray = getLocTraces(encResults);
+
+        System.out.println("Location Trace Query Finished");
+        System.out.println("Found " + String.valueOf(locArray.length) + " visited location for the device. The list of the locations: ");
+        for (String loc : locArray){
+            System.out.println(loc);
+        }
+    }
+
+    public String[] getLocTraces(ArrayList<EncWifiData> encResults){
         HashSet<String> visitedLocs = new HashSet<String>();
+        //debug info
         System.out.println("EncResults size: " + String.valueOf(encResults.size()));
         for (EncWifiData encData:encResults){
             String concatCL = AES.decrypt(encData.encCL);
@@ -45,10 +57,27 @@ public class EncDataAnalyzer {
             }
         }
 
-        System.out.println("Location Trace Query Finished");
-        System.out.println("Found " + String.valueOf(visitedLocs.size()) + " visited location for the device. The list of the locations: ");
-        for (String loc : visitedLocs){
-            System.out.println(loc);
+        String[] locArray = new String[visitedLocs.size()];
+        visitedLocs.toArray(locArray);
+        return locArray;
+    }
+
+    public void processUserTraceResults(ArrayList<EncWifiData> encResults){
+        HashSet<String> affectedUsers = new HashSet<String>();
+        //debug info
+        System.out.println("EncResults size: " + String.valueOf(encResults.size()));
+        for (EncWifiData encData:encResults){
+            String concatId = AES.decrypt(encData.encId);
+            String[] IdSecs = concatId.split("\\|\\|",0);
+            String userInData = IdSecs[0];
+
+            affectedUsers.add(userInData);
+        }
+
+        System.out.println("User Trace Query Finished");
+        System.out.println("Found " + String.valueOf(affectedUsers.size()) + " Users visited potential affected locations. The list of the Users: ");
+        for (String user : affectedUsers){
+            System.out.println(user);
         }
     }
 
