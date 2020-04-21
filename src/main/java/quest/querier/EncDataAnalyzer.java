@@ -1,7 +1,10 @@
 package quest.querier;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 
 import quest.model.EncWifiData;
 import quest.util.AES;
@@ -26,7 +29,8 @@ public class EncDataAnalyzer {
             return;
         }
         else if (queryType == 3){
-            
+            processSocialDistResults(encResults);
+            return;
         }
         else if (queryType == 4){
             
@@ -79,6 +83,36 @@ public class EncDataAnalyzer {
         for (String user : affectedUsers){
             System.out.println(user);
         }
+    }
+
+    public void processSocialDistResults(ArrayList<EncWifiData> encResults){
+        HashMap<String,Integer> locCounterMap = new HashMap<String,Integer>();
+        //debug info
+        System.out.println("EncResults size: " + String.valueOf(encResults.size()));
+        for (EncWifiData encData:encResults){
+            String concatL = AES.decrypt(encData.encL);
+            String[] LSecs = concatL.split("\\|\\|",0);
+            String loc = LSecs[0];
+
+            if (!locCounterMap.containsKey(loc)){
+                locCounterMap.put(loc, 1);
+            }
+            else{
+                Integer locCounter = locCounterMap.get(loc);
+                locCounter = locCounter + 1;
+                locCounterMap.put(loc, locCounter);
+            }
+        }
+
+        System.out.println("Social Distance Query Finished");
+        System.out.println("List of location occupancy: ");
+        for (Map.Entry mapElement : locCounterMap.entrySet()) { 
+            String loc = (String)mapElement.getKey(); 
+            int counter = ((int)mapElement.getValue()); 
+  
+            System.out.println(loc + " : " + counter); 
+        }
+
     }
 
     

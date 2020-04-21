@@ -74,7 +74,12 @@ public class DbQuerier {
                 }
             }
             else if (queryType == 3){
-                
+                //Social Distance query only returns encl
+                while (rs.next()) {
+                    EncWifiData retEncData = new EncWifiData();
+                    retEncData.encL = rs.getString(1);
+                    resultEncWifiDataSet.add(retEncData);
+                }
             }
             else if (queryType == 4){
                 

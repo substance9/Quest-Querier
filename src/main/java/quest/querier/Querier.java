@@ -5,6 +5,8 @@ import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Properties;
 
@@ -36,20 +38,34 @@ public class Querier {
                                                             encDataAnalyzer);
 
         // Start executing query......
+        Instant start = Instant.now();
 
         String encSqlStr = queryGenerator.getEncQuery(Integer.valueOf(prop.getProperty("query_type")),
                                                         prop.getProperty("query_start_time"), 
                                                         prop.getProperty("query_end_time"), 
                                                         prop.getProperty("query_device"));
-        
+     
+        Instant queryFormingFinish = Instant.now();
 
         ArrayList<EncWifiData> encResults = dbQuerier.execQuery(Integer.valueOf(prop.getProperty("query_type")),
                                                                 encSqlStr);
 
+        Instant queryExecFinish = Instant.now();
+
         encDataAnalyzer.processResults(Integer.valueOf(prop.getProperty("query_type")),
                                         encResults);
 
+        Instant queryAnalysisFinish = Instant.now();
+
         System.out.println("Quest Query Execution Finished");
+        long queryFormingTime = Duration.between(start, queryFormingFinish).toMillis();
+        System.out.println("Encrypted SQL Query Forming Time: " + String.valueOf(queryFormingTime) + " ms");
+
+        long queryExecTime = Duration.between(start, queryExecFinish).toMillis();
+        System.out.println("Query Execution (at DB) Time: " + String.valueOf(queryExecTime) + " ms");
+        
+        long queryAnalysisTime = Duration.between(start, queryAnalysisFinish).toMillis();
+        System.out.println("Result Analysis Time: " + String.valueOf(queryAnalysisTime) + " ms");
     }
 
     private static Properties readConfig( String[] args ){

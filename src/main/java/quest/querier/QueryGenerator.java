@@ -16,10 +16,12 @@ public class QueryGenerator {
     private String encTableName;
     private DbQuerier dbQuerier;
     private EncDataAnalyzer encDataAnalyzer;
-    private int maxLocCounter = 4;
+    private int maxLocCounter = 100;
+    private int maxRows = 30000;
 
     private static String locTraceQueryTemplate = "SELECT enccl FROM %s WHERE encid='%s' AND %s;";
     private static String userTraceQueryTemplate = "SELECT encid FROM %s WHERE %s;";
+    private static String socialDistQueryTemplate = "SELECT encl FROM %s WHERE %s;";
 
     public QueryGenerator(Epoch epoch, String keyStr, String secretZStr, String encTableName, DbQuerier dbQuerier, EncDataAnalyzer encDataAnalyzer) {
         this.epoch = epoch;
@@ -152,7 +154,34 @@ public class QueryGenerator {
     }
 
     public String generateSocialDistEncQuery(Timestamp queryStartTimeTs, Timestamp queryEndTimeTs){
-        return "";
+        String conditionsStr = "(";
+        ArrayList<Long> coveredEpochIds = getCoveredEpochIds(queryStartTimeTs,queryEndTimeTs);
+        //For each covered epoch, try 1-max rows to get A_U
+        for (int i = 0; i < coveredEpochIds.size(); i++){
+            long epochId = coveredEpochIds.get(i);
+            String encEpochIdStr = AES.encrypt(String.valueOf(epochId));
+            conditionsStr = conditionsStr + " ((encd=" + "'" + encEpochIdStr + "') AND (";
+            for (int j = 1; j <= maxRows; j++){
+                String encU = AES.concatAndEncrypt("1",String.valueOf(j),String.valueOf(epochId));
+                conditionsStr = conditionsStr + "encu='" + encU + "'";
+                if (j == maxRows){
+                    conditionsStr = conditionsStr + "))";
+                }
+                else{
+                    conditionsStr = conditionsStr + " OR ";
+                }
+            }
+
+            if(i == coveredEpochIds.size() - 1){
+                conditionsStr = conditionsStr + ")";
+            }
+            else{
+                conditionsStr = conditionsStr + " OR ";
+            }
+        }
+
+        String socialDistQuery = String.format(socialDistQueryTemplate, encTableName, conditionsStr);
+        return socialDistQuery;
     }
 
     public String generateCrowdFlowEncQuery(Timestamp queryStartTimeTs, Timestamp queryEndTimeTs){
