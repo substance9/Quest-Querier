@@ -116,6 +116,9 @@ public class QueryGenerator {
         //Run location trace query first to get the list of locations
         String encLocTraceSqlStr = generateLocTraceEncQuery(queryStartTimeTs,queryEndTimeTs,queryDevice);
         ArrayList<EncWifiData> encResults = dbQuerier.execQuery(1, encLocTraceSqlStr);
+        if (encResults.size() == 0){
+            return null;
+        }
         String[] locArray = encDataAnalyzer.getLocTraces(encResults);
         
         String conditionsStr = "(";

@@ -47,6 +47,11 @@ public class Querier {
      
         Instant queryFormingFinish = Instant.now();
 
+        if (encSqlStr == null){
+            System.out.println("Empty SQL Generated. Exit (If you are executing Query 2, this is caused by the reason that user did not present in the selected epochs.)");
+            return;
+        }
+
         ArrayList<EncWifiData> encResults = dbQuerier.execQuery(Integer.valueOf(prop.getProperty("query_type")),
                                                                 encSqlStr);
 
@@ -61,11 +66,14 @@ public class Querier {
         long queryFormingTime = Duration.between(start, queryFormingFinish).toMillis();
         System.out.println("Encrypted SQL Query Forming Time: " + String.valueOf(queryFormingTime) + " ms");
 
-        long queryExecTime = Duration.between(start, queryExecFinish).toMillis();
+        long queryExecTime = Duration.between(queryFormingFinish, queryExecFinish).toMillis();
         System.out.println("Query Execution (at DB) Time: " + String.valueOf(queryExecTime) + " ms");
         
-        long queryAnalysisTime = Duration.between(start, queryAnalysisFinish).toMillis();
+        long queryAnalysisTime = Duration.between(queryExecFinish, queryAnalysisFinish).toMillis();
         System.out.println("Result Analysis Time: " + String.valueOf(queryAnalysisTime) + " ms");
+
+        long totalTime = Duration.between(start, queryAnalysisFinish).toMillis();
+        System.out.println("Total Time: " + String.valueOf(totalTime) + " ms");
     }
 
     private static Properties readConfig( String[] args ){
